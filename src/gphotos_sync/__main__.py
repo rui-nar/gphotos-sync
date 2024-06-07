@@ -109,6 +109,14 @@ class GooglePhotosSyncMain:
         help="DEPRECATED: root of the local folders to compare to the Photos Library",
     )
     parser.add_argument(
+        "--exclusion-pattern",
+        action="store",
+        help="DEPRECATED: comma separated list of path exclusion patterns to consider"
+        " when running --compare-folder. Patterns can include match wildcards."
+        ' Ex: "*/@eaDir"',
+        default="",
+    )
+    parser.add_argument(
         "--favourites-only",
         action="store_true",
         help="only download media marked as favourite (star)",
@@ -410,6 +418,7 @@ class GooglePhotosSyncMain:
                 root_folder,
                 compare_folder,  # type: ignore
                 self.data_store,  # type: ignore
+                list(filter(None, args.exclusion_pattern.split(","))),  # type: ignore
             )
 
     def do_sync(self, args: Namespace):

@@ -17,7 +17,13 @@ class LocalFilesScan(object):
     Google Photos Library
     """
 
-    def __init__(self, root_folder: Path, scan_folder: Path, db: LocalData):
+    def __init__(
+        self,
+        root_folder: Path,
+        scan_folder: Path,
+        db: LocalData,
+        exclusion_pattern: list = [],
+    ):
         """
         Parameters:
             scan_folder: path to the root of local files to scan
@@ -25,6 +31,7 @@ class LocalFilesScan(object):
         """
         self._scan_folder: Path = scan_folder
         self._root_folder: Path = root_folder
+        self._exclusion_pattern: list = exclusion_pattern
         self._comparison_folder = self._root_folder / "comparison"
         self._ignore_files: str = str(root_folder / "*gphotos*")
         self._ignore_folders = [root_folder / path for path in IGNORE_FOLDERS]
@@ -55,7 +62,9 @@ class LocalFilesScan(object):
             for pth in folder.iterdir():
                 if pth.is_dir():
                     # IGNORE_FOLDERS for comparing against 'self'
-                    if pth not in self._ignore_folders:
+                    if pth not in self._ignore_folders and not any(
+                        pth.match(pattern) for pattern in self._exclusion_pattern
+                    ):
                         self.scan_folder(pth, index)
                 elif not pth.is_symlink():
                     if not pth.match(self._ignore_files):
